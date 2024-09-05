@@ -18,7 +18,7 @@ jobs:
 
    env:
       JOB_NAME: "guestbook_project"
-      JFrog_Project: "demowei"
+      JFrog_Project: "alexwang"
   
    steps:
    # This action checks out the code from the repository
