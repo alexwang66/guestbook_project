@@ -63,15 +63,15 @@ jobs:
    - name: Build Maven Project
      run: |
        sed -i "s#BUILDNUM#$GITHUB_RUN_NUMBER#g"  ./gateway-service/pom.xml
-       jf  mvnc --repo-resolve-releases=demowei-mvn-virtual --repo-resolve-snapshots=demowei-mvn-virtual --repo-deploy-releases=demowei-mvn-dev-local --repo-deploy-snapshots=demowei-mvn-dev-local
+       jf  mvnc --repo-resolve-releases=alex-maven-virtual --repo-resolve-snapshots=alex-maven-virtual --repo-deploy-releases=alex-maven-virtual --repo-deploy-snapshots=alex-maven-virtual
        jf  mvn clean install -f ./gateway-service/pom.xml --build-name=$JOB_NAME --build-number=$GITHUB_RUN_NUMBER --project=$JFrog_Project
      
 
    - name: Build Docker Project and Push Docker image
      run: |
-       docker build -t soleng.jfrog.io/demowei-docker-dev-local/gateway-service:$GITHUB_RUN_NUMBER . 
-       jf docker push soleng.jfrog.io/demowei-docker-dev-local/gateway-service:$GITHUB_RUN_NUMBER --build-name=$JOB_NAME --build-number=$GITHUB_RUN_NUMBER  --project=$JFrog_Project
-       # jf docker scan soleng.jfrog.io/demowei-docker-dev-local/gateway-service:$GITHUB_RUN_NUMBER
+       docker build -t soleng.jfrog.io/alexwang-docker/gateway-service:$GITHUB_RUN_NUMBER . 
+       jf docker push soleng.jfrog.io/alexwang-docker/gateway-service:$GITHUB_RUN_NUMBER --build-name=$JOB_NAME --build-number=$GITHUB_RUN_NUMBER  --project=$JFrog_Project
+       # jf docker scan soleng.jfrog.io/alexwang-docker/gateway-service:$GITHUB_RUN_NUMBER
      working-directory: gateway-service
 
 
@@ -80,7 +80,7 @@ jobs:
        sed -i "s/podCount/2/g" values.yaml
        sed -i "s/Rigistry_URL/soleng.jfrog.io/g" values.yaml
        sed -i "s/Rigistry_URL/soleng.jfrog.io/g" values.yaml
-       sed -i "s/Docker_Repo/demowei-docker-dev-local/g" values.yaml
+       sed -i "s/Docker_Repo/alexwang-docker/g" values.yaml
        sed -i "s/chartversion/$GITHUB_RUN_NUMBER/g" Chart.yaml
        sed -i "s/Gateway_Repo_Name/gateway-service/g" values.yaml           
        sed -i "s/gateway_version/$GITHUB_RUN_NUMBER/g" values.yaml
@@ -99,7 +99,7 @@ jobs:
      run: |
         touch "Doc-${{ github.run_number }}.txt"
         echo $GITHUB_RUN_NUMBER > "Doc-${{ github.run_number }}.txt"
-        jf rt u "Doc-${{ github.run_number }}.txt"  demowei-generic-dev-local/${{ github.run_number }}/ --build-name=$JOB_NAME --build-number=$GITHUB_RUN_NUMBER --project=$JFrog_Project
+        jf rt u "Doc-${{ github.run_number }}.txt"  alexwang-generic-local/${{ github.run_number }}/ --build-name=$JOB_NAME --build-number=$GITHUB_RUN_NUMBER --project=$JFrog_Project
              
    # This action publishes the build information to Artifactory and deletes older builds
    - name: Publish Build-Info to Artifactory
@@ -164,13 +164,13 @@ jobs:
      run: |
       #echo “BuildInfo in ：${digest}” >> $GITHUB_STEP_SUMMARY
       #echo "Jar packages in ： ${{ vars.ARTIFACTORY_URL }}/artifactory/demowei-mvn-dev-local/org/liwei/guestbook-microservices-k8s/gateway-service/1.0.${{ github.run_number }}/gateway-service-1.0.${{ github.run_number }}.jar">> $GITHUB_STEP_SUMMARY
-      #echo "Docker  images in ： ${{ vars.ARTIFACTORY_URL }}/demowei-docker-dev-local/gateway-service:${{ github.run_number }}"  >> $GITHUB_STEP_SUMMARY
+      #echo "Docker  images in ： ${{ vars.ARTIFACTORY_URL }}/alexwang-docker/gateway-service:${{ github.run_number }}"  >> $GITHUB_STEP_SUMMARY
       #echo "Helm  charts in ： ${{ vars.ARTIFACTORY_URL }}/artifactory/demowei-helm-dev-local/guestbook/${{ github.run_number }}/guestbook-${{ github.run_number }}.tgz"  >> $GITHUB_STEP_SUMMARY
-      #echo "Docs   in ： ${{ vars.ARTIFACTORY_URL }}/artifactory/demowei-generic-dev-local/${{ github.run_number }}/Doc-${{ github.run_number }}.txt"  >> $GITHUB_STEP_SUMMARY
+      #echo "Docs   in ： ${{ vars.ARTIFACTORY_URL }}/artifactory/alexwang-generic-local/${{ github.run_number }}/Doc-${{ github.run_number }}.txt"  >> $GITHUB_STEP_SUMMARY
       jar_url="${{ vars.ARTIFACTORY_URL }}/artifactory/demowei-mvn-dev-local/org/liwei/guestbook-microservices-k8s/gateway-service/1.0.${{ github.run_number }}/gateway-service-1.0.${{ github.run_number }}.jar"
-      docker_url="${{ vars.ARTIFACTORY_URL }}/demowei-docker-dev-local/gateway-service:${{ github.run_number }}"
+      docker_url="${{ vars.ARTIFACTORY_URL }}/alexwang-docker/gateway-service:${{ github.run_number }}"
       helm_chart_url="${{ vars.ARTIFACTORY_URL }}/artifactory/demowei-helm-dev-local/guestbook/${{ github.run_number }}/guestbook-${{ github.run_number }}.tgz"
-      docs_url="${{ vars.ARTIFACTORY_URL }}/artifactory/demowei-generic-dev-local/${{ github.run_number }}/Doc-${{ github.run_number }}.txt"
+      docs_url="${{ vars.ARTIFACTORY_URL }}/artifactory/alexwang-generic-local/${{ github.run_number }}/Doc-${{ github.run_number }}.txt"
 
       
       echo "### Artifacts Information" >> $GITHUB_STEP_SUMMARY
