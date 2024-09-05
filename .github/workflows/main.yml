@@ -45,7 +45,7 @@ jobs:
      env:
        JF_URL: https://soleng.jfrog.io
      with:
-       oidc-provider-name: liwei-github-oidc 
+       oidc-provider-name: alexwang-github 
        oidc-audience: jfrog-github
 
 
