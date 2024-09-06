@@ -106,8 +106,8 @@ jobs:
      run: |
 
 
-       jf rt bce $JOB_NAME $GITHUB_RUN_NUMBER --project=$JFrog_Project 
-       jf rt bag $JOB_NAME $GITHUB_RUN_NUMBER --project=$JFrog_Project 
+       jf rt bce $JOB_NAME $GITHUB_RUN_NUMBER --project=alexwang 
+       jf rt bag $JOB_NAME $GITHUB_RUN_NUMBER --project=alexwang 
 
 
 
