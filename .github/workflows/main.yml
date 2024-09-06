@@ -51,10 +51,10 @@ jobs:
 
 
    # This command adds a new server configuration to the JFrog CLI   
-   - run: |
-      export JFROG_CLI_LOG_LEVEL="debug"
-      jf config add demo --url "https://soleng.jfrog.io" --access-token ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }} --interactive=false
-      jf config use demo
+   # - run: |
+   #    export JFROG_CLI_LOG_LEVEL="debug"
+   #    jf config add demo --url "https://soleng.jfrog.io" --access-token ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }} --interactive=false
+   #    jf config use demo
 
 
 
