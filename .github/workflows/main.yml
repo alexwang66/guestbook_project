@@ -16,7 +16,7 @@ jobs:
  build:
    runs-on: ubuntu-latest
    env:
-    JOB_NAME: "guestbook_project"
+    JOB_NAME: "alexwang_guestbook_project"
     JFrog_Project: "alexwang"
   
    steps:
