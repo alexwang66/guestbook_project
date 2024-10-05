@@ -61,7 +61,7 @@ jobs:
    # This action creates a new test file and uploads it to Artifactory   
    - name: Build Maven Project
      run: |
-       echo "$JFrog_Project"
+       echo $JFrog_Project
        
        sed -i "s#BUILDNUM#$GITHUB_RUN_NUMBER#g"  ./gateway-service/pom.xml
        jf  mvnc --repo-resolve-releases=alex-maven-virtual --repo-resolve-snapshots=alex-maven-virtual --repo-deploy-releases=alex-maven-virtual --repo-deploy-snapshots=alex-maven-virtual
