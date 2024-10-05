@@ -17,7 +17,7 @@ jobs:
    runs-on: ubuntu-latest
    env:
     JOB_NAME: "alexwang_guestbook_project"
-    JFrog_Project: "alexwang"
+    # JFrog_Project: "alexwang"
   
    steps:
    # This action checks out the code from the repository
