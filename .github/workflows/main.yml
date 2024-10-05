@@ -17,7 +17,7 @@ jobs:
    runs-on: ubuntu-latest
    env:
     JOB_NAME: "alexwang_guestbook_project"
-    # JFrog_Project: "alexwang"
+    JFrog_Project: "alexwang"
   
    steps:
    # This action checks out the code from the repository
@@ -61,141 +61,141 @@ jobs:
    # This action creates a new test file and uploads it to Artifactory   
    - name: Build Maven Project
      run: |
-       echo ""
+       echo "$JFrog_Project"
        
        sed -i "s#BUILDNUM#$GITHUB_RUN_NUMBER#g"  ./gateway-service/pom.xml
        jf  mvnc --repo-resolve-releases=alex-maven-virtual --repo-resolve-snapshots=alex-maven-virtual --repo-deploy-releases=alex-maven-virtual --repo-deploy-snapshots=alex-maven-virtual
        jf  mvn clean install -f ./gateway-service/pom.xml --build-name=$JOB_NAME --build-number=$GITHUB_RUN_NUMBER 
      
 
-   - name: Build Docker Project and Push Docker image
-     run: |
-       docker build -t soleng.jfrog.io/alexwang-docker/gateway-service:$GITHUB_RUN_NUMBER . 
-       jf docker push soleng.jfrog.io/alexwang-docker/gateway-service:$GITHUB_RUN_NUMBER --build-name=$JOB_NAME --build-number=$GITHUB_RUN_NUMBER  
-       # jf docker scan soleng.jfrog.io/alexwang-docker/gateway-service:$GITHUB_RUN_NUMBER
-     working-directory: gateway-service
+   # - name: Build Docker Project and Push Docker image
+   #   run: |
+   #     docker build -t soleng.jfrog.io/alexwang-docker/gateway-service:$GITHUB_RUN_NUMBER . 
+   #     jf docker push soleng.jfrog.io/alexwang-docker/gateway-service:$GITHUB_RUN_NUMBER --build-name=$JOB_NAME --build-number=$GITHUB_RUN_NUMBER  
+   #     # jf docker scan soleng.jfrog.io/alexwang-docker/gateway-service:$GITHUB_RUN_NUMBER
+   #   working-directory: gateway-service
 
 
-   - name: Build Helm Package
-     run: |
-       sed -i "s/podCount/2/g" values.yaml
-       sed -i "s/Rigistry_URL/soleng.jfrog.io/g" values.yaml
-       sed -i "s/Rigistry_URL/soleng.jfrog.io/g" values.yaml
-       sed -i "s/Docker_Repo/alexwang-docker/g" values.yaml
-       sed -i "s/chartversion/$GITHUB_RUN_NUMBER/g" Chart.yaml
-       sed -i "s/Gateway_Repo_Name/gateway-service/g" values.yaml           
-       sed -i "s/gateway_version/$GITHUB_RUN_NUMBER/g" values.yaml
-       sed -i "s/Discovery_Repo_Name/discovery-service/g" values.yaml
-       sed -i "s/discovery_version/$GITHUB_RUN_NUMBER/g" values.yaml
-     working-directory: kube-deploy/charts/guestbook
+   # - name: Build Helm Package
+   #   run: |
+   #     sed -i "s/podCount/2/g" values.yaml
+   #     sed -i "s/Rigistry_URL/soleng.jfrog.io/g" values.yaml
+   #     sed -i "s/Rigistry_URL/soleng.jfrog.io/g" values.yaml
+   #     sed -i "s/Docker_Repo/alexwang-docker/g" values.yaml
+   #     sed -i "s/chartversion/$GITHUB_RUN_NUMBER/g" Chart.yaml
+   #     sed -i "s/Gateway_Repo_Name/gateway-service/g" values.yaml           
+   #     sed -i "s/gateway_version/$GITHUB_RUN_NUMBER/g" values.yaml
+   #     sed -i "s/Discovery_Repo_Name/discovery-service/g" values.yaml
+   #     sed -i "s/discovery_version/$GITHUB_RUN_NUMBER/g" values.yaml
+   #   working-directory: kube-deploy/charts/guestbook
 
-   - name: Publish Helm Package
-     run: |
-       #curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
-       helm package guestbook
-       jf rt u "guestbook-${{ github.run_number }}.tgz" alexwang-helm/guestbook/${{ github.run_number }}/ --build-name=$JOB_NAME --build-number=$GITHUB_RUN_NUMBER  
-     working-directory: kube-deploy/charts
+   # - name: Publish Helm Package
+   #   run: |
+   #     #curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+   #     helm package guestbook
+   #     jf rt u "guestbook-${{ github.run_number }}.tgz" alexwang-helm/guestbook/${{ github.run_number }}/ --build-name=$JOB_NAME --build-number=$GITHUB_RUN_NUMBER  
+   #   working-directory: kube-deploy/charts
 
-   - name: Upload Docs
-     run: |
-        touch "Doc-${{ github.run_number }}.txt"
-        echo $GITHUB_RUN_NUMBER > "Doc-${{ github.run_number }}.txt"
-        jf rt u "Doc-${{ github.run_number }}.txt"  alexwang-generic-local/${{ github.run_number }}/ --build-name=$JOB_NAME --build-number=$GITHUB_RUN_NUMBER 
+   # - name: Upload Docs
+   #   run: |
+   #      touch "Doc-${{ github.run_number }}.txt"
+   #      echo $GITHUB_RUN_NUMBER > "Doc-${{ github.run_number }}.txt"
+   #      jf rt u "Doc-${{ github.run_number }}.txt"  alexwang-generic-local/${{ github.run_number }}/ --build-name=$JOB_NAME --build-number=$GITHUB_RUN_NUMBER 
              
-   # This action publishes the build information to Artifactory and deletes older builds
-   - name: Publish Build-Info to Artifactory
-     run: |
+   # # This action publishes the build information to Artifactory and deletes older builds
+   # - name: Publish Build-Info to Artifactory
+   #   run: |
 
 
-       jf rt bce $JOB_NAME $GITHUB_RUN_NUMBER  
-       jf rt bag $JOB_NAME $GITHUB_RUN_NUMBER  
+   #     jf rt bce $JOB_NAME $GITHUB_RUN_NUMBER  
+   #     jf rt bag $JOB_NAME $GITHUB_RUN_NUMBER  
 
 
 
-       repository_url="${{ github.repositoryUrl }}"
-       ref_name="${{ github.ref }}"
-       commit_sha="${{ github.sha }}"
-       commit_message="${{ github.event.head_commit.message }}"
-       commit_author="${{ github.event.head_commit.author.name }}"
-       event_url="${{ github.event.repository.html_url }}"
-       event_name="${{ github.event_name }}"
-       git_owner="${{ github.repository_owner }}"
-       head_ref="${{ github.head_ref }}"
-       base_ref="${{ github.base_ref }}"
+   #     repository_url="${{ github.repositoryUrl }}"
+   #     ref_name="${{ github.ref }}"
+   #     commit_sha="${{ github.sha }}"
+   #     commit_message="${{ github.event.head_commit.message }}"
+   #     commit_author="${{ github.event.head_commit.author.name }}"
+   #     event_url="${{ github.event.repository.html_url }}"
+   #     event_name="${{ github.event_name }}"
+   #     git_owner="${{ github.repository_owner }}"
+   #     head_ref="${{ github.head_ref }}"
+   #     base_ref="${{ github.base_ref }}"
 
-       # Check and replace empty variables with 'empty'
-       repository_url=${repository_url:-empty}
-       ref_name=${ref_name:-empty}
-       commit_sha=${commit_sha:-empty}
-       commit_message=${commit_message:-empty}
-       commit_author=${commit_author:-empty}
-       event_url=${event_url:-empty}
-       event_name=${event_name:-empty}
-       git_owner=${git_owner:-empty}
-       head_ref=${head_ref:-empty}
-       base_ref=${base_ref:-empty}
+   #     # Check and replace empty variables with 'empty'
+   #     repository_url=${repository_url:-empty}
+   #     ref_name=${ref_name:-empty}
+   #     commit_sha=${commit_sha:-empty}
+   #     commit_message=${commit_message:-empty}
+   #     commit_author=${commit_author:-empty}
+   #     event_url=${event_url:-empty}
+   #     event_name=${event_name:-empty}
+   #     git_owner=${git_owner:-empty}
+   #     head_ref=${head_ref:-empty}
+   #     base_ref=${base_ref:-empty}
        
-       digest=$(jf rt bp $JOB_NAME $GITHUB_RUN_NUMBER )
+   #     digest=$(jf rt bp $JOB_NAME $GITHUB_RUN_NUMBER )
        
-       jf rt sp  --build="${JOB_NAME}/${GITHUB_RUN_NUMBER}" "repository_url=${repository_url};ref_name=${ref_name};commit_sha=${commit_sha};commit_message=${commit_message};commit_author=${commit_author};event_url=${event_url};event_name=${event_name};git_owner=${git_owner};head_ref=${head_ref};base_ref=${base_ref}"  
+   #     jf rt sp  --build="${JOB_NAME}/${GITHUB_RUN_NUMBER}" "repository_url=${repository_url};ref_name=${ref_name};commit_sha=${commit_sha};commit_message=${commit_message};commit_author=${commit_author};event_url=${event_url};event_name=${event_name};git_owner=${git_owner};head_ref=${head_ref};base_ref=${base_ref}"  
 
-       echo "### Commit message:" >> $GITHUB_STEP_SUMMARY
-       echo "" >> $GITHUB_STEP_SUMMARY
-       echo "**Commit message:**" >> $GITHUB_STEP_SUMMARY
-       echo "${commit_message}" >> $GITHUB_STEP_SUMMARY
-       echo "" >> $GITHUB_STEP_SUMMARY
+   #     echo "### Commit message:" >> $GITHUB_STEP_SUMMARY
+   #     echo "" >> $GITHUB_STEP_SUMMARY
+   #     echo "**Commit message:**" >> $GITHUB_STEP_SUMMARY
+   #     echo "${commit_message}" >> $GITHUB_STEP_SUMMARY
+   #     echo "" >> $GITHUB_STEP_SUMMARY
 
-       first_field=$(echo "${commit_message}" | awk '{print $1}')
-       jira_url="https://yourcompany.atlassian.net/browse/${first_field}"
-       echo "### JIRA URL:" >> $GITHUB_STEP_SUMMARY
-       echo "" >> $GITHUB_STEP_SUMMARY
-       echo "**JIRA URL:**" >> $GITHUB_STEP_SUMMARY
-       echo "$jira_url" >> $GITHUB_STEP_SUMMARY
-       echo "" >> $GITHUB_STEP_SUMMARY
+   #     first_field=$(echo "${commit_message}" | awk '{print $1}')
+   #     jira_url="https://yourcompany.atlassian.net/browse/${first_field}"
+   #     echo "### JIRA URL:" >> $GITHUB_STEP_SUMMARY
+   #     echo "" >> $GITHUB_STEP_SUMMARY
+   #     echo "**JIRA URL:**" >> $GITHUB_STEP_SUMMARY
+   #     echo "$jira_url" >> $GITHUB_STEP_SUMMARY
+   #     echo "" >> $GITHUB_STEP_SUMMARY
       
 
-       # echo "### Build Information" >> $GITHUB_STEP_SUMMARY
-       # echo "" >> $GITHUB_STEP_SUMMARY
-       # echo "**BuildInfo:**" >> $GITHUB_STEP_SUMMARY
-       # echo "" >> $GITHUB_STEP_SUMMARY
-       # echo "${digest}" >> $GITHUB_STEP_SUMMARY
-       # echo "" >> $GITHUB_STEP_SUMMARY
+   #     # echo "### Build Information" >> $GITHUB_STEP_SUMMARY
+   #     # echo "" >> $GITHUB_STEP_SUMMARY
+   #     # echo "**BuildInfo:**" >> $GITHUB_STEP_SUMMARY
+   #     # echo "" >> $GITHUB_STEP_SUMMARY
+   #     # echo "${digest}" >> $GITHUB_STEP_SUMMARY
+   #     # echo "" >> $GITHUB_STEP_SUMMARY
 
-   - name: Echo Artifacts Info
-     run: |
-      #echo “BuildInfo in ：${digest}” >> $GITHUB_STEP_SUMMARY
-      #echo "Jar packages in ： ${{ vars.ARTIFACTORY_URL }}/artifactory/alex-maven-virtual//org/alexwang/guestbook-microservices-k8s/gateway-service/1.0.${{ github.run_number }}/gateway-service-1.0.${{ github.run_number }}.jar">> $GITHUB_STEP_SUMMARY
-      #echo "Docker  images in ： ${{ vars.ARTIFACTORY_URL }}/alexwang-docker/gateway-service:${{ github.run_number }}"  >> $GITHUB_STEP_SUMMARY
-      #echo "Helm  charts in ： ${{ vars.ARTIFACTORY_URL }}/artifactory/alexwang-helm/guestbook/${{ github.run_number }}/guestbook-${{ github.run_number }}.tgz"  >> $GITHUB_STEP_SUMMARY
-      #echo "Docs   in ： ${{ vars.ARTIFACTORY_URL }}/artifactory/alexwang-generic-local/${{ github.run_number }}/Doc-${{ github.run_number }}.txt"  >> $GITHUB_STEP_SUMMARY
-      jar_url="${{ vars.ARTIFACTORY_URL }}/artifactory/alex-maven-virtual//org/alexwang/guestbook-microservices-k8s/gateway-service/1.0.${{ github.run_number }}/gateway-service-1.0.${{ github.run_number }}.jar"
-      docker_url="${{ vars.ARTIFACTORY_URL }}/alexwang-docker/gateway-service:${{ github.run_number }}"
-      helm_chart_url="${{ vars.ARTIFACTORY_URL }}/artifactory/alexwang-helm/guestbook/${{ github.run_number }}/guestbook-${{ github.run_number }}.tgz"
-      docs_url="${{ vars.ARTIFACTORY_URL }}/artifactory/alexwang-generic-local/${{ github.run_number }}/Doc-${{ github.run_number }}.txt"
+   # - name: Echo Artifacts Info
+   #   run: |
+   #    #echo “BuildInfo in ：${digest}” >> $GITHUB_STEP_SUMMARY
+   #    #echo "Jar packages in ： ${{ vars.ARTIFACTORY_URL }}/artifactory/alex-maven-virtual//org/alexwang/guestbook-microservices-k8s/gateway-service/1.0.${{ github.run_number }}/gateway-service-1.0.${{ github.run_number }}.jar">> $GITHUB_STEP_SUMMARY
+   #    #echo "Docker  images in ： ${{ vars.ARTIFACTORY_URL }}/alexwang-docker/gateway-service:${{ github.run_number }}"  >> $GITHUB_STEP_SUMMARY
+   #    #echo "Helm  charts in ： ${{ vars.ARTIFACTORY_URL }}/artifactory/alexwang-helm/guestbook/${{ github.run_number }}/guestbook-${{ github.run_number }}.tgz"  >> $GITHUB_STEP_SUMMARY
+   #    #echo "Docs   in ： ${{ vars.ARTIFACTORY_URL }}/artifactory/alexwang-generic-local/${{ github.run_number }}/Doc-${{ github.run_number }}.txt"  >> $GITHUB_STEP_SUMMARY
+   #    jar_url="${{ vars.ARTIFACTORY_URL }}/artifactory/alex-maven-virtual//org/alexwang/guestbook-microservices-k8s/gateway-service/1.0.${{ github.run_number }}/gateway-service-1.0.${{ github.run_number }}.jar"
+   #    docker_url="${{ vars.ARTIFACTORY_URL }}/alexwang-docker/gateway-service:${{ github.run_number }}"
+   #    helm_chart_url="${{ vars.ARTIFACTORY_URL }}/artifactory/alexwang-helm/guestbook/${{ github.run_number }}/guestbook-${{ github.run_number }}.tgz"
+   #    docs_url="${{ vars.ARTIFACTORY_URL }}/artifactory/alexwang-generic-local/${{ github.run_number }}/Doc-${{ github.run_number }}.txt"
 
       
-      echo "### Artifacts Information" >> $GITHUB_STEP_SUMMARY
-      echo "" >> $GITHUB_STEP_SUMMARY
-      echo "**Jar packages:**" >> $GITHUB_STEP_SUMMARY
-      echo "[$jar_url]($jar_url)" >> $GITHUB_STEP_SUMMARY
-      echo "" >> $GITHUB_STEP_SUMMARY
-      echo "**Docker images:**" >> $GITHUB_STEP_SUMMARY
-      echo "[$docker_url]($docker_url)" >> $GITHUB_STEP_SUMMARY
-      echo "" >> $GITHUB_STEP_SUMMARY
-      echo "**Helm charts:**" >> $GITHUB_STEP_SUMMARY
-      echo "[$helm_chart_url]($helm_chart_url)" >> $GITHUB_STEP_SUMMARY
-      echo "" >> $GITHUB_STEP_SUMMARY
-      echo "**Docs:**" >> $GITHUB_STEP_SUMMARY
-      echo "[$docs_url]($docs_url)" >> $GITHUB_STEP_SUMMARY
+   #    echo "### Artifacts Information" >> $GITHUB_STEP_SUMMARY
+   #    echo "" >> $GITHUB_STEP_SUMMARY
+   #    echo "**Jar packages:**" >> $GITHUB_STEP_SUMMARY
+   #    echo "[$jar_url]($jar_url)" >> $GITHUB_STEP_SUMMARY
+   #    echo "" >> $GITHUB_STEP_SUMMARY
+   #    echo "**Docker images:**" >> $GITHUB_STEP_SUMMARY
+   #    echo "[$docker_url]($docker_url)" >> $GITHUB_STEP_SUMMARY
+   #    echo "" >> $GITHUB_STEP_SUMMARY
+   #    echo "**Helm charts:**" >> $GITHUB_STEP_SUMMARY
+   #    echo "[$helm_chart_url]($helm_chart_url)" >> $GITHUB_STEP_SUMMARY
+   #    echo "" >> $GITHUB_STEP_SUMMARY
+   #    echo "**Docs:**" >> $GITHUB_STEP_SUMMARY
+   #    echo "[$docs_url]($docs_url)" >> $GITHUB_STEP_SUMMARY
 
-   - name: Build Scan
-     run: |
-       jf bs $JOB_NAME $GITHUB_RUN_NUMBER   --fail=false   
+   # - name: Build Scan
+   #   run: |
+   #     jf bs $JOB_NAME $GITHUB_RUN_NUMBER   --fail=false   
 
 
-   - name: Create RBv2
-     run: |
-        sed -i "s/build-name/$JOB_NAME/g" rbv2.json
-        sed -i "s/build-number/${{ github.run_number }}/g" rbv2.json
+   # - name: Create RBv2
+   #   run: |
+   #      sed -i "s/build-name/$JOB_NAME/g" rbv2.json
+   #      sed -i "s/build-number/${{ github.run_number }}/g" rbv2.json
         # sed -i "s/project-key/alexwang/g" rbv2.json
         jf rbc --spec=./rbv2.json --signing-key=debian-erika --sync=true  $JOB_NAME  $GITHUB_RUN_NUMBER
