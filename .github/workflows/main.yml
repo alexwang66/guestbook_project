@@ -106,7 +106,6 @@ jobs:
       - name: Publish Build-Info to Artifactory
         run: |
           
-          
           jf rt bce $JOB_NAME $GITHUB_RUN_NUMBER  
           jf rt bag $JOB_NAME $GITHUB_RUN_NUMBER  
           
