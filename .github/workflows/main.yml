@@ -48,7 +48,6 @@ jobs:
           oidc-audience: jfrog-github
 
 
-
       # This command adds a new server configuration to the JFrog CLI
       # - run: |
       #    export JFROG_CLI_LOG_LEVEL="debug"
